@@ -7,6 +7,7 @@ import Tecnologia from '../pages/Tecnologia'
 import Auth from '../pages/auth/Auth'
 import Perfil from '../pages/auth/Perfil'
 import Cart from "../pages/Cart";
+import RegisterForm from "../pages/RegisterForm";
 
 function AppRoutes() {
 
@@ -15,6 +16,7 @@ function AppRoutes() {
             <Routes>
                 <Route path="/" element={<Producto />} />
                 <Route path="/tecnologia" element={<Tecnologia />} />
+                <Route path="/registro" element={<RegisterForm />} />
                 {/* <Route path="/form" element={<ProductForm />} /> */}
                 {/* Solo una ruta para /login que maneja el login y registro */}
                 <Route path="/login" element={<Auth />} />
