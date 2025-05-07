@@ -3,43 +3,41 @@ import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
     const [showConsent, setShowConsent] = useState(false); // El consentimiento no se muestra de inmediato
-    const [showForm, setShowForm] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const [showForm, setShowForm] = useState(false); // El formulario de Google no se muestra de inmediato
+    const [loading, setLoading] = useState(true); // Manejamos el estado de carga del formulario
+    const navigate = useNavigate(); // Hook para navegar a otra página
 
     useEffect(() => {
-        // Aquí puedes hacer algo cuando la página se carga después de escanear el QR
-        // Por ejemplo, se puede navegar a la página donde se desea mostrar el contenido
-        // Si ya se accedió al enlace del QR, no necesitas hacer nada para navegar,
-        // ya que la página ya está cargada
+        // Redirigir inmediatamente al inicio antes de mostrar el consentimiento
+        navigate('/');
 
         // Esperar 5 segundos antes de mostrar el consentimiento
         const timerConsent = setTimeout(() => {
-            setShowConsent(true);
+            setShowConsent(true); // Mostrar el modal de consentimiento
         }, 5000); // 5000 ms = 5 segundos
 
-        // Limpiar el timer si el componente se desmonta antes de los 5 segundos
-        return () => clearTimeout(timerConsent);
-    }, []);
+        return () => clearTimeout(timerConsent); // Limpiar el timer cuando el componente se desmonte
+    }, [navigate]);
 
     useEffect(() => {
-        // Mostrar el formulario después de otros 5 segundos (una vez se acepte el consentimiento)
+        // Una vez el consentimiento se ha mostrado, esperar otros 5 segundos para mostrar el formulario
         if (showConsent) {
             const timerForm = setTimeout(() => {
                 setShowForm(true); // Mostrar el formulario después de otros 5 segundos
             }, 5000); // Esperar otros 5 segundos para mostrar el formulario
 
-            // Limpiar el timer de mostrar el formulario si el componente se desmonta
-            return () => clearTimeout(timerForm);
+            return () => clearTimeout(timerForm); // Limpiar el timer de mostrar el formulario si el componente se desmonta
         }
     }, [showConsent]);
 
     const handleAccept = () => {
         setShowConsent(false); // Ocultar el modal de consentimiento
+        // Redirigir al inicio mientras se espera el formulario
+        navigate('/');
     };
 
     const handleDecline = () => {
-        navigate('/'); // Redirigir al inicio si declina
+        navigate('/'); // Redirigir al inicio si el usuario rechaza el consentimiento
     };
 
     const handleCloseForm = () => {
@@ -68,27 +66,23 @@ const RegisterForm = () => {
         <>
             {/* Modal de consentimiento */}
             {showConsent && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.6)',
-                    display: 'flex', justifyContent: 'center', alignItems: 'center',
-                    zIndex: 999
-                }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        padding: '30px',
-                        borderRadius: '10px',
-                        width: '90%',
-                        maxWidth: '400px',
-                        textAlign: 'center',
-                        boxShadow: '0 0 20px rgba(0,0,0,0.3)'
-                    }}>
-                        <h2>¿Deseas aceptar los beneficios?</h2>
-                        <p>Podrás acceder a contenidos y oportunidades exclusivas.</p>
-                        <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                            <button onClick={handleAccept}>Sí, aceptar</button>
-                            <button onClick={handleDecline}>No, gracias</button>
+                <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+                    <div className="bg-white p-8 rounded-lg w-11/12 max-w-md text-center shadow-lg">
+                        <h2 className="text-xl font-semibold">¿Deseas aceptar los beneficios?</h2>
+                        <p className="mt-2">Podrás acceder a contenidos y oportunidades exclusivas.</p>
+                        <div className="mt-6 flex gap-4 justify-center">
+                            <button
+                                onClick={handleAccept}
+                                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                            >
+                                Sí, aceptar
+                            </button>
+                            <button
+                                onClick={handleDecline}
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                            >
+                                No, gracias
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -96,36 +90,12 @@ const RegisterForm = () => {
 
             {/* Modal con el formulario */}
             {showForm && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.6)',
-                    display: 'flex', justifyContent: 'center', alignItems: 'center',
-                    zIndex: 999
-                }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        padding: '20px',
-                        borderRadius: '10px',
-                        width: '95%',
-                        maxWidth: '800px',
-                        maxHeight: '90vh',
-                        overflow: 'auto',
-                        position: 'relative',
-                        boxShadow: '0 0 20px rgba(0,0,0,0.3)'
-                    }}>
+                <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg w-11/12 max-w-3xl max-h-[90vh] overflow-auto relative shadow-lg">
                         {/* Botón de cerrar */}
                         <button
                             onClick={handleCloseForm}
-                            style={{
-                                position: 'absolute',
-                                top: '10px',
-                                right: '10px',
-                                background: 'transparent',
-                                border: 'none',
-                                fontSize: '1.5rem',
-                                cursor: 'pointer'
-                            }}
+                            className="absolute top-4 right-4 bg-transparent text-2xl font-bold cursor-pointer"
                             aria-label="Cerrar formulario"
                         >
                             ×
@@ -133,7 +103,7 @@ const RegisterForm = () => {
 
                         {/* Loader */}
                         {loading && (
-                            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                            <div className="text-center mb-4">
                                 <p>Cargando formulario...</p>
                             </div>
                         )}
@@ -147,8 +117,8 @@ const RegisterForm = () => {
                             frameBorder="0"
                             marginHeight="0"
                             marginWidth="0"
-                            title="Google Form"
-                            style={{ border: 'none' }}
+                            title="Formulario de Google"
+                            className="border-none"
                         >
                             Cargando…
                         </iframe>
