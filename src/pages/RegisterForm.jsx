@@ -1,11 +1,21 @@
-// RegisterForm.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
     const [showConsent, setShowConsent] = useState(true);
     const [showForm, setShowForm] = useState(false);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Esperar 5 segundos antes de mostrar el consentimiento
+        const timer = setTimeout(() => {
+            setShowConsent(true);
+        }, 5000); // 5000 ms = 5 segundos
+
+        // Limpiar el timer si el componente se desmonta antes de los 5 segundos
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleAccept = () => {
         setShowConsent(false);
@@ -13,13 +23,30 @@ const RegisterForm = () => {
     };
 
     const handleDecline = () => {
-        navigate('/'); // Redirige si no acepta los beneficios
+        navigate('/');
     };
 
     const handleCloseForm = () => {
         setShowForm(false);
-        navigate('/'); // Redirige al cerrar el formulario
+        navigate('/');
     };
+
+    // Bloqueo de scroll en el body mientras hay un modal abierto
+    useEffect(() => {
+        const shouldBlockScroll = showConsent || showForm;
+        document.body.style.overflow = shouldBlockScroll ? 'hidden' : 'auto';
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [showConsent, showForm]);
+
+    // Accesibilidad: enfocar el botón al mostrar consentimiento
+    useEffect(() => {
+        if (showConsent) {
+            const firstButton = document.querySelector('button');
+            firstButton?.focus();
+        }
+    }, [showConsent]);
 
     return (
         <>
@@ -67,7 +94,7 @@ const RegisterForm = () => {
                         width: '95%',
                         maxWidth: '800px',
                         maxHeight: '90vh',
-                        overflow: 'hidden',
+                        overflow: 'auto',
                         position: 'relative',
                         boxShadow: '0 0 20px rgba(0,0,0,0.3)'
                     }}>
@@ -88,8 +115,16 @@ const RegisterForm = () => {
                             ×
                         </button>
 
+                        {/* Loader */}
+                        {loading && (
+                            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                                <p>Cargando formulario...</p>
+                            </div>
+                        )}
+
                         {/* Formulario de Google */}
                         <iframe
+                            onLoad={() => setLoading(false)}
                             src="https://docs.google.com/forms/d/e/1FAIpQLSeHtaKN7-218pPcd7ZuuqJTFGOEZZLDFhHDdqhDMMMFLHBGJg/viewform?embedded=true"
                             width="100%"
                             height="600px"
