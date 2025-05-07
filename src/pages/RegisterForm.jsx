@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
-    const [showConsent, setShowConsent] = useState(true);
+    const [showConsent, setShowConsent] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
