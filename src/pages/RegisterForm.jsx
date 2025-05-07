@@ -2,33 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
-    const [showConsent, setShowConsent] = useState(false);
+    const [showConsent, setShowConsent] = useState(false); // El consentimiento no se muestra de inmediato
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Aquí puedes hacer algo cuando la página se carga después de escanear el QR
+        // Por ejemplo, se puede navegar a la página donde se desea mostrar el contenido
+        // Si ya se accedió al enlace del QR, no necesitas hacer nada para navegar,
+        // ya que la página ya está cargada
+
         // Esperar 5 segundos antes de mostrar el consentimiento
-        const timer = setTimeout(() => {
+        const timerConsent = setTimeout(() => {
             setShowConsent(true);
         }, 5000); // 5000 ms = 5 segundos
 
         // Limpiar el timer si el componente se desmonta antes de los 5 segundos
-        return () => clearTimeout(timer);
+        return () => clearTimeout(timerConsent);
     }, []);
 
+    useEffect(() => {
+        // Mostrar el formulario después de otros 5 segundos (una vez se acepte el consentimiento)
+        if (showConsent) {
+            const timerForm = setTimeout(() => {
+                setShowForm(true); // Mostrar el formulario después de otros 5 segundos
+            }, 5000); // Esperar otros 5 segundos para mostrar el formulario
+
+            // Limpiar el timer de mostrar el formulario si el componente se desmonta
+            return () => clearTimeout(timerForm);
+        }
+    }, [showConsent]);
+
     const handleAccept = () => {
-        setShowConsent(false);
-        setShowForm(true);
+        setShowConsent(false); // Ocultar el modal de consentimiento
     };
 
     const handleDecline = () => {
-        navigate('/');
+        navigate('/'); // Redirigir al inicio si declina
     };
 
     const handleCloseForm = () => {
-        setShowForm(false);
-        navigate('/');
+        setShowForm(false); // Cerrar el formulario
+        navigate('/'); // Redirigir al inicio
     };
 
     // Bloqueo de scroll en el body mientras hay un modal abierto
