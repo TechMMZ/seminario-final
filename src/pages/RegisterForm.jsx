@@ -1,85 +1,83 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 const RegisterForm = () => {
-    const [showConsent, setShowConsent] = useState(false); // El consentimiento no se muestra de inmediato
-    const [showForm, setShowForm] = useState(false); // El formulario de Google no se muestra de inmediato
-    const [loading, setLoading] = useState(true); // Manejamos el estado de carga del formulario
-    const navigate = useNavigate(); // Hook para navegar a otra página
+    const [step, setStep] = useState('initial'); // 'initial', 'consent', 'form'
+    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        // Redirigir inmediatamente al inicio antes de mostrar el consentimiento
-        navigate('/');
-
-        // Esperar 5 segundos antes de mostrar el consentimiento
-        const timerConsent = setTimeout(() => {
-            setShowConsent(true); // Mostrar el modal de consentimiento
-        }, 5000); // 5000 ms = 5 segundos
-
-        return () => clearTimeout(timerConsent); // Limpiar el timer cuando el componente se desmonte
-    }, [navigate]);
-
-    useEffect(() => {
-        // Una vez el consentimiento se ha mostrado, esperar otros 5 segundos para mostrar el formulario
-        if (showConsent) {
-            const timerForm = setTimeout(() => {
-                setShowForm(true); // Mostrar el formulario después de otros 5 segundos
-            }, 5000); // Esperar otros 5 segundos para mostrar el formulario
-
-            return () => clearTimeout(timerForm); // Limpiar el timer de mostrar el formulario si el componente se desmonta
-        }
-    }, [showConsent]);
-
-    const handleAccept = () => {
-        setShowConsent(false); // Ocultar el modal de consentimiento
-        // Redirigir al inicio mientras se espera el formulario
-        navigate('/');
+    // Para simular la navegación sin react-router-dom
+    const navigateTo = (path) => {
+        console.log(`Navegación simulada a: ${path}`);
+        // En una implementación real, podrías usar window.location o un contexto de navegación
     };
 
-    const handleDecline = () => {
-        navigate('/'); // Redirigir al inicio si el usuario rechaza el consentimiento
-    };
-
-    const handleCloseForm = () => {
-        setShowForm(false); // Cerrar el formulario
-        navigate('/'); // Redirigir al inicio
-    };
-
-    // Bloqueo de scroll en el body mientras hay un modal abierto
     useEffect(() => {
-        const shouldBlockScroll = showConsent || showForm;
-        document.body.style.overflow = shouldBlockScroll ? 'hidden' : 'auto';
+        // Mostrar el consentimiento después de un tiempo
+        const timer = setTimeout(() => {
+            setStep('consent');
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Bloqueo de scroll cuando hay un modal abierto
+    useEffect(() => {
+        const isModalOpen = step === 'consent' || step === 'form';
+        document.body.style.overflow = isModalOpen ? 'hidden' : 'auto';
+
         return () => {
             document.body.style.overflow = 'auto';
         };
-    }, [showConsent, showForm]);
+    }, [step]);
 
-    // Accesibilidad: enfocar el botón al mostrar consentimiento
+    // Enfoque para accesibilidad
     useEffect(() => {
-        if (showConsent) {
-            const firstButton = document.querySelector('button');
-            firstButton?.focus();
+        if (step === 'consent') {
+            const acceptButton = document.getElementById('accept-button');
+            acceptButton?.focus();
         }
-    }, [showConsent]);
+    }, [step]);
+
+    const handleAccept = () => {
+        setStep('form');
+    };
+
+    const handleDecline = () => {
+        setStep('initial');
+        navigateTo('/');
+    };
+
+    const handleCloseForm = () => {
+        setStep('initial');
+        navigateTo('/');
+    };
 
     return (
-        <>
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+            {/* Contenido inicial */}
+            {step === 'initial' && (
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold mb-4">Página de Registro</h1>
+                    <p>Bienvenido a nuestro sitio. Esta es la página de registro.</p>
+                </div>
+            )}
+
             {/* Modal de consentimiento */}
-            {showConsent && (
+            {step === 'consent' && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
                     <div className="bg-white p-8 rounded-lg w-11/12 max-w-md text-center shadow-lg">
-                        <h2 className="text-xl font-semibold">¿Deseas aceptar los beneficios?</h2>
+                        <h2 className="text-xl font-semibold">¿Deseas acceder a beneficios exclusivos?</h2>
                         <p className="mt-2">Podrás acceder a contenidos y oportunidades exclusivas.</p>
                         <div className="mt-6 flex gap-4 justify-center">
                             <button
+                                id="accept-button"
                                 onClick={handleAccept}
                                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
                             >
-                                Sí, aceptar
+                                Sí, continuar al registro
                             </button>
                             <button
                                 onClick={handleDecline}
-                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                             >
                                 No, gracias
                             </button>
@@ -89,9 +87,9 @@ const RegisterForm = () => {
             )}
 
             {/* Modal con el formulario */}
-            {showForm && (
+            {step === 'form' && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg w-11/12 max-w-3xl max-h-[90vh] overflow-auto relative shadow-lg">
+                    <div className="bg-white p-6 rounded-lg w-11/12 max-w-3xl max-h-screen md:max-h-[90vh] overflow-auto relative shadow-lg">
                         {/* Botón de cerrar */}
                         <button
                             onClick={handleCloseForm}
@@ -101,10 +99,12 @@ const RegisterForm = () => {
                             ×
                         </button>
 
+                        <h2 className="text-xl font-semibold mb-4 text-center">Completa tu registro</h2>
+
                         {/* Loader */}
                         {loading && (
-                            <div className="text-center mb-4">
-                                <p>Cargando formulario...</p>
+                            <div className="flex justify-center items-center py-8">
+                                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
                             </div>
                         )}
 
@@ -113,7 +113,7 @@ const RegisterForm = () => {
                             onLoad={() => setLoading(false)}
                             src="https://docs.google.com/forms/d/e/1FAIpQLSeHtaKN7-218pPcd7ZuuqJTFGOEZZLDFhHDdqhDMMMFLHBGJg/viewform?embedded=true"
                             width="100%"
-                            height="600px"
+                            height="600"
                             frameBorder="0"
                             marginHeight="0"
                             marginWidth="0"
@@ -125,7 +125,7 @@ const RegisterForm = () => {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 
