@@ -1,68 +1,54 @@
 import { useState, useEffect } from 'react';
 
 const RegisterForm = () => {
-    const [step, setStep] = useState('initial'); // 'initial', 'consent', 'form'
+    const [showConsent, setShowConsent] = useState(false);
+    const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Para simular la navegación sin react-router-dom
-    const navigateTo = (path) => {
-        console.log(`Navegación simulada a: ${path}`);
-        // En una implementación real, podrías usar window.location o un contexto de navegación
-    };
-
     useEffect(() => {
-        // Mostrar el consentimiento después de un tiempo
-        const timer = setTimeout(() => {
-            setStep('consent');
+        // Esperar 5 segundos antes de mostrar el consentimiento
+        const timerConsent = setTimeout(() => {
+            setShowConsent(true);
         }, 5000);
 
-        return () => clearTimeout(timer);
+        return () => clearTimeout(timerConsent);
     }, []);
 
     // Bloqueo de scroll cuando hay un modal abierto
     useEffect(() => {
-        const isModalOpen = step === 'consent' || step === 'form';
-        document.body.style.overflow = isModalOpen ? 'hidden' : 'auto';
+        const shouldBlockScroll = showConsent || showForm;
+        document.body.style.overflow = shouldBlockScroll ? 'hidden' : 'auto';
 
         return () => {
             document.body.style.overflow = 'auto';
         };
-    }, [step]);
+    }, [showConsent, showForm]);
 
-    // Enfoque para accesibilidad
+    // Accesibilidad: enfocar el botón al mostrar consentimiento
     useEffect(() => {
-        if (step === 'consent') {
+        if (showConsent) {
             const acceptButton = document.getElementById('accept-button');
             acceptButton?.focus();
         }
-    }, [step]);
+    }, [showConsent]);
 
     const handleAccept = () => {
-        setStep('form');
+        setShowConsent(false);
+        setShowForm(true);
     };
 
     const handleDecline = () => {
-        setStep('initial');
-        navigateTo('/');
+        setShowConsent(false);
     };
 
     const handleCloseForm = () => {
-        setStep('initial');
-        navigateTo('/');
+        setShowForm(false);
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
-            {/* Contenido inicial */}
-            {step === 'initial' && (
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">Página de Registro</h1>
-                    <p>Bienvenido a nuestro sitio. Esta es la página de registro.</p>
-                </div>
-            )}
-
+        <>
             {/* Modal de consentimiento */}
-            {step === 'consent' && (
+            {showConsent && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
                     <div className="bg-white p-8 rounded-lg w-11/12 max-w-md text-center shadow-lg">
                         <h2 className="text-xl font-semibold">¿Deseas acceder a beneficios exclusivos?</h2>
@@ -87,7 +73,7 @@ const RegisterForm = () => {
             )}
 
             {/* Modal con el formulario */}
-            {step === 'form' && (
+            {showForm && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg w-11/12 max-w-3xl max-h-screen md:max-h-[90vh] overflow-auto relative shadow-lg">
                         {/* Botón de cerrar */}
@@ -125,7 +111,7 @@ const RegisterForm = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
