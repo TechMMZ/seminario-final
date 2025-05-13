@@ -136,8 +136,8 @@ const Cart = ({ isOpen, onClose }) => {
                                         {/* Imagen del producto con mejor presentación */}
                                         <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-50">
                                             <img
-                                                src={producto.img}
-                                                alt={producto.nombre}
+                                                src={producto.imgUrl}
+                                                alt={producto.Nombre}
                                                 className="h-full w-full object-contain object-center p-1"
                                             />
                                         </div>
@@ -145,7 +145,7 @@ const Cart = ({ isOpen, onClose }) => {
                                         {/* Información del producto */}
                                         <div className="flex flex-1 flex-col">
                                             <div className="flex justify-between text-base font-medium text-gray-900">
-                                                <h3 className="line-clamp-2 text-sm">{producto.nombre}</h3>
+                                                <h3 className="line-clamp-2 text-sm">{producto.Nombre}</h3>
                                             </div>
 
                                             <div className="flex items-end justify-between text-sm mt-auto pt-2">
@@ -174,7 +174,7 @@ const Cart = ({ isOpen, onClose }) => {
                                                         type="button"
                                                         className="ml-4 p-1 text-gray-400 hover:text-gray-500 transition-colors"
                                                         onClick={() => eliminarProducto(producto.id)}
-                                                        aria-label={`Eliminar ${producto.nombre} del carrito`}
+                                                        aria-label={`Eliminar ${producto.Nombre} del carrito`}
                                                     >
                                                         <Trash2 size={18} />
                                                     </button>
